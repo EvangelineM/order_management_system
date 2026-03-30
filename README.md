@@ -1,5 +1,3 @@
-# Evangeline Assignment
-
 This repository contains:
 
 - `backend/` FastAPI service for order management.
