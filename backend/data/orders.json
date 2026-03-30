@@ -1,0 +1,38 @@
+[
+  {
+    "id": "bc764cda-08dc-44d7-8cc6-a4f6fb475236",
+    "customer_name": "Ketan",
+    "items": [
+      "Emerald fan pendant (Rs. 27800)"
+    ],
+    "total_price": 27800.0,
+    "status": "delivered",
+    "created_at": "2026-03-30T16:53:07.238907+00:00",
+    "dedup_key": "ketan|emerald fan pendant (rs. 27800)|27800.00|ketan@gmail.com"
+  },
+  {
+    "id": "43e511eb-5e8c-434c-bcbb-a248789ed53c",
+    "customer_name": "Evangeline",
+    "items": [
+      "Aurora Knot Ring (Rs. 19800)",
+      "Aurora Knot Ring (Rs. 19800)"
+    ],
+    "total_price": 39600.0,
+    "status": "pending",
+    "created_at": "2026-03-30T17:17:33.377349+00:00",
+    "dedup_key": "evangeline|aurora knot ring (rs. 19800),aurora knot ring (rs. 19800)|39600.00|evangeline@gmail.com"
+  },
+  {
+    "id": "482a7129-a1aa-4090-8204-a2d6ce6f4ccc",
+    "customer_name": "Evangeline",
+    "items": [
+      "Celestia Layer Necklace (Rs. 34200)",
+      "Flora Pearl Tennis Bracelet (Rs. 45200)",
+      "Flora Pearl Tennis Bracelet (Rs. 45200)"
+    ],
+    "total_price": 124600.0,
+    "status": "delivered",
+    "created_at": "2026-03-30T17:24:54.993520+00:00",
+    "dedup_key": "evangeline|celestia layer necklace (rs. 34200),flora pearl tennis bracelet (rs. 45200),flora pearl tennis bracelet (rs. 45200)|124600.00|evangeline@gmail.com"
+  }
+]
