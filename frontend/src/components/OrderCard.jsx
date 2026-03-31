@@ -41,7 +41,8 @@ function OrderCard({ order, onStatusChange, onDelete }) {
         ))}
       </div>
       <p>
-        <strong>Total:</strong> Rs. {Number(order.total_price).toLocaleString("en-IN")}
+        <strong>Total:</strong> Rs.{" "}
+        {Number(order.total_price).toLocaleString("en-IN")}
       </p>
       <p>
         <strong>Created:</strong> {new Date(order.created_at).toLocaleString()}
@@ -57,7 +58,11 @@ function OrderCard({ order, onStatusChange, onDelete }) {
             </option>
           ))}
         </select>
-        <button type="button" className="danger" onClick={() => onDelete(order.id)}>
+        <button
+          type="button"
+          className="danger"
+          onClick={() => onDelete(order.id)}
+        >
           Delete
         </button>
       </div>

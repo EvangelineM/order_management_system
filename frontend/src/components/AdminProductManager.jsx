@@ -18,7 +18,12 @@ const initialProduct = {
   reviews: "",
 };
 
-function AdminProductManager({ products, onAddProduct, onRemoveProduct, onUpdateProduct }) {
+function AdminProductManager({
+  products,
+  onAddProduct,
+  onRemoveProduct,
+  onUpdateProduct,
+}) {
   const [form, setForm] = useState(initialProduct);
   const [error, setError] = useState("");
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -45,7 +50,7 @@ function AdminProductManager({ products, onAddProduct, onRemoveProduct, onUpdate
 
   const handleVoiceStart = () => {
     console.log("handleVoiceStart called. isVoiceListening:", isVoiceListening);
-    
+
     if (!voiceSupported) {
       console.error("Voice not supported");
       alert("Voice recognition is not supported in your browser");
@@ -61,11 +66,16 @@ function AdminProductManager({ products, onAddProduct, onRemoveProduct, onUpdate
     const targetField = focusedField || "name";
     console.log("Starting voice for field:", targetField);
     setVoiceField(targetField);
-    
+
     startVoiceRecording((finalTranscript) => {
       console.log("Voice callback fired with transcript:", finalTranscript);
       if (finalTranscript) {
-        console.log("Updating form field", targetField, "with:", finalTranscript);
+        console.log(
+          "Updating form field",
+          targetField,
+          "with:",
+          finalTranscript,
+        );
         setForm((prev) => ({
           ...prev,
           [targetField]: finalTranscript,
@@ -79,7 +89,12 @@ function AdminProductManager({ products, onAddProduct, onRemoveProduct, onUpdate
     event.preventDefault();
     setError("");
 
-    if (!form.name.trim() || !form.category.trim() || !form.price || !form.stock) {
+    if (
+      !form.name.trim() ||
+      !form.category.trim() ||
+      !form.price ||
+      !form.stock
+    ) {
       setError("Name, category, price, and stock are required.");
       return;
     }
@@ -127,7 +142,9 @@ function AdminProductManager({ products, onAddProduct, onRemoveProduct, onUpdate
       <div className="admin-form-shell">
         <div className="admin-form-head">
           <h2>Add Product</h2>
-          <p className="muted-text">Fill in essentials first, then enhance with jewelry details.</p>
+          <p className="muted-text">
+            Fill in essentials first, then enhance with jewelry details.
+          </p>
         </div>
 
         {voiceSupported && (
@@ -164,8 +181,17 @@ function AdminProductManager({ products, onAddProduct, onRemoveProduct, onUpdate
             </button>
             <div style={{ flex: 1 }}>
               {isVoiceListening && (
-                <p style={{ margin: 0, color: "#4caf50", fontWeight: "bold", fontSize: "14px" }}>
-                  {focusedField ? `Speaking for: ${focusedField}` : "Click a field then speak..."}
+                <p
+                  style={{
+                    margin: 0,
+                    color: "#4caf50",
+                    fontWeight: "bold",
+                    fontSize: "14px",
+                  }}
+                >
+                  {focusedField
+                    ? `Speaking for: ${focusedField}`
+                    : "Click a field then speak..."}
                 </p>
               )}
               {voiceTranscript && (
@@ -358,27 +384,49 @@ function AdminProductManager({ products, onAddProduct, onRemoveProduct, onUpdate
 
       <div className="admin-list">
         {products.map((product) => (
-          <article className="admin-product" key={product.id} onClick={() => setSelectedProduct(product)}>
+          <article
+            className="admin-product"
+            key={product.id}
+            onClick={() => setSelectedProduct(product)}
+          >
             <div className="admin-product-main">
-              <img className="product-image product-image-small" src={product.image} alt={product.name} />
+              <img
+                className="product-image product-image-small"
+                src={product.image}
+                alt={product.name}
+              />
               <div className="admin-product-copy">
                 <p className="product-category">{product.category}</p>
                 <p className="muted-text">Product ID: {product.id}</p>
                 <h3>{product.name}</h3>
                 <p className="product-desc">{product.description}</p>
                 <div className="admin-product-meta">
-                  <p className="product-price">Rs. {Number(product.price).toLocaleString("en-IN")}</p>
-                  <p className={Number(product.stock) <= 0 ? "stock stock-out" : "stock"}>
-                    {Number(product.stock) <= 0 ? "Out of stock" : `Stock: ${product.stock}`}
+                  <p className="product-price">
+                    Rs. {Number(product.price).toLocaleString("en-IN")}
+                  </p>
+                  <p
+                    className={
+                      Number(product.stock) <= 0 ? "stock stock-out" : "stock"
+                    }
+                  >
+                    {Number(product.stock) <= 0
+                      ? "Out of stock"
+                      : `Stock: ${product.stock}`}
                   </p>
                   <p className="stock">
-                    Rating: {Number(product.rating || 0).toFixed(1)} ({Number(product.reviews || 0)})
+                    Rating: {Number(product.rating || 0).toFixed(1)} (
+                    {Number(product.reviews || 0)})
                   </p>
-                  <p className="stock">Status: {product.active ? "Active" : "Hidden"}</p>
+                  <p className="stock">
+                    Status: {product.active ? "Active" : "Hidden"}
+                  </p>
                 </div>
               </div>
             </div>
-            <div className="admin-side-rail" onClick={(event) => event.stopPropagation()}>
+            <div
+              className="admin-side-rail"
+              onClick={(event) => event.stopPropagation()}
+            >
               <button
                 className="btn-toggle admin-visibility-btn"
                 type="button"
@@ -391,14 +439,47 @@ function AdminProductManager({ products, onAddProduct, onRemoveProduct, onUpdate
               >
                 <span className="action-icon" aria-hidden="true">
                   {product.active ? (
-                    <svg viewBox="0 0 24 24" width="14" height="14" focusable="false">
-                      <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" fill="none" stroke="currentColor" strokeWidth="2" />
-                      <path d="M4 4l16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="14"
+                      height="14"
+                      focusable="false"
+                    >
+                      <path
+                        d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+                      <path
+                        d="M4 4l16 16"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                      />
                     </svg>
                   ) : (
-                    <svg viewBox="0 0 24 24" width="14" height="14" focusable="false">
-                      <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" fill="none" stroke="currentColor" strokeWidth="2" />
-                      <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" strokeWidth="2" />
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="14"
+                      height="14"
+                      focusable="false"
+                    >
+                      <path
+                        d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="3"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
                     </svg>
                   )}
                 </span>
@@ -424,7 +505,9 @@ function AdminProductManager({ products, onAddProduct, onRemoveProduct, onUpdate
                   title="Decrease stock"
                   onClick={(event) => {
                     event.stopPropagation();
-                    onUpdateProduct(product.id, { stock: Math.max(product.stock - 1, 0) });
+                    onUpdateProduct(product.id, {
+                      stock: Math.max(product.stock - 1, 0),
+                    });
                   }}
                 >
                   -1

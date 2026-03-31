@@ -1,7 +1,6 @@
 const statuses = ["all", "pending", "shipped", "delivered"];
 
 function SearchBar({ onClear, status, onStatusChange }) {
-
   return (
     <div className="panel admin-form-shell order-search-shell">
       <div className="admin-form-section">

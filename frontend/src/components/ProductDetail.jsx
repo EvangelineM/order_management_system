@@ -1,6 +1,12 @@
 import { useMemo } from "react";
 
-function ProductDetail({ product, onClose, onAddToCart, cart = {}, showCartControls = true }) {
+function ProductDetail({
+  product,
+  onClose,
+  onAddToCart,
+  cart = {},
+  showCartControls = true,
+}) {
   if (!product) return null;
 
   const rating = Number(product.rating || 0);
@@ -26,7 +32,12 @@ function ProductDetail({ product, onClose, onAddToCart, cart = {}, showCartContr
   };
 
   return (
-    <div className="product-detail-overlay" role="dialog" aria-modal="true" aria-label="Product details">
+    <div
+      className="product-detail-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Product details"
+    >
       <div className="product-detail-modal">
         <button
           type="button"
@@ -64,7 +75,9 @@ function ProductDetail({ product, onClose, onAddToCart, cart = {}, showCartContr
                 ))}
               </div>
               <span className="rating-value">{rating.toFixed(1)}</span>
-              <span className="reviews-count">({reviews.toLocaleString("en-IN")} reviews)</span>
+              <span className="reviews-count">
+                ({reviews.toLocaleString("en-IN")} reviews)
+              </span>
             </div>
 
             <p className="detail-description">{product.description}</p>
@@ -77,7 +90,9 @@ function ProductDetail({ product, onClose, onAddToCart, cart = {}, showCartContr
               <h3>Product Details</h3>
               <div className="detail-row">
                 <span className="detail-label">Material</span>
-                <span className="detail-value">{product.material || "N/A"}</span>
+                <span className="detail-value">
+                  {product.material || "N/A"}
+                </span>
               </div>
               <div className="detail-row">
                 <span className="detail-label">Product ID</span>
@@ -89,7 +104,9 @@ function ProductDetail({ product, onClose, onAddToCart, cart = {}, showCartContr
               </div>
               <div className="detail-row">
                 <span className="detail-label">Gemstone</span>
-                <span className="detail-value">{product.gemstone || "None"}</span>
+                <span className="detail-value">
+                  {product.gemstone || "None"}
+                </span>
               </div>
               <div className="detail-row">
                 <span className="detail-label">Color</span>

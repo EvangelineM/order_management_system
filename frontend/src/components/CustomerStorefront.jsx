@@ -54,7 +54,11 @@ function CustomerStorefront({
 
   const categoryChips = useMemo(() => {
     const categories = Array.from(
-      new Set(products.map((product) => normalizeCategory(product.category)).filter(Boolean))
+      new Set(
+        products
+          .map((product) => normalizeCategory(product.category))
+          .filter(Boolean),
+      ),
     ).sort((a, b) => a.localeCompare(b));
 
     return ["All", ...categories];
@@ -69,7 +73,10 @@ function CustomerStorefront({
   useEffect(() => {
     setFilters((prev) => ({
       ...prev,
-      priceRange: [Math.min(Number(prev.priceRange?.[0] || 0), maxCatalogPrice), maxCatalogPrice],
+      priceRange: [
+        Math.min(Number(prev.priceRange?.[0] || 0), maxCatalogPrice),
+        maxCatalogPrice,
+      ],
     }));
   }, [maxCatalogPrice]);
 
@@ -78,22 +85,25 @@ function CustomerStorefront({
       products
         .filter((product) => (cart[product.id] || 0) > 0)
         .map((product) => ({ ...product, quantity: cart[product.id] })),
-    [products, cart]
+    [products, cart],
   );
 
   const cartTotal = useMemo(
     () => cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
-    [cartItems]
+    [cartItems],
   );
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
       const matchesCategory =
         activeCategory === "All" ||
-        normalizeCategory(product.category).toLowerCase() === activeCategory.toLowerCase();
+        normalizeCategory(product.category).toLowerCase() ===
+          activeCategory.toLowerCase();
       if (!matchesCategory) return false;
 
-      const query = String(productSearch || "").trim().toLowerCase();
+      const query = String(productSearch || "")
+        .trim()
+        .toLowerCase();
       if (query) {
         const haystack = [
           product.name,
@@ -111,7 +121,8 @@ function CustomerStorefront({
         if (!haystack.includes(query)) return false;
       }
 
-      if (filters.metal.length > 0 && !filters.metal.includes(product.metal)) return false;
+      if (filters.metal.length > 0 && !filters.metal.includes(product.metal))
+        return false;
       if (filters.gemstone.length > 0) {
         const gemstoneValue =
           product.gemstone == null || String(product.gemstone).trim() === ""
@@ -119,10 +130,15 @@ function CustomerStorefront({
             : String(product.gemstone);
         if (!filters.gemstone.includes(gemstoneValue)) return false;
       }
-      if (filters.minRating > 0 && Number(product.rating || 0) < filters.minRating) return false;
+      if (
+        filters.minRating > 0 &&
+        Number(product.rating || 0) < filters.minRating
+      )
+        return false;
 
       const price = Number(product.price || 0);
-      if (price < filters.priceRange[0] || price > filters.priceRange[1]) return false;
+      if (price < filters.priceRange[0] || price > filters.priceRange[1])
+        return false;
 
       return true;
     });
@@ -150,7 +166,8 @@ function CustomerStorefront({
 
     if (customerOrders.length > 0) {
       const latestOrder = [...customerOrders].sort(
-        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
       )[0];
 
       if (latestOrder?.id) {
@@ -234,15 +251,23 @@ function CustomerStorefront({
                     key={product.id}
                     onClick={() => setSelectedProduct(product)}
                   >
-                    <img className="product-image" src={product.image} alt={product.name} />
+                    <img
+                      className="product-image"
+                      src={product.image}
+                      alt={product.name}
+                    />
                     <p className="product-category">{product.category}</p>
                     <p className="muted-text">Product ID: {product.id}</p>
                     <h3>{product.name}</h3>
                     <p className="product-desc">{product.description}</p>
                     <div className="product-rating">
-                      <span className="rating-stars">Rating {Number(product.rating || 0).toFixed(1)} / 5</span>
+                      <span className="rating-stars">
+                        Rating {Number(product.rating || 0).toFixed(1)} / 5
+                      </span>
                     </div>
-                    <p className="product-price">Rs. {Number(product.price).toLocaleString("en-IN")}</p>
+                    <p className="product-price">
+                      Rs. {Number(product.price).toLocaleString("en-IN")}
+                    </p>
                     <p className={soldOut ? "stock stock-out" : "stock"}>
                       {soldOut ? "Out of stock" : `${product.stock} in stock`}
                     </p>
@@ -286,7 +311,9 @@ function CustomerStorefront({
             </div>
 
             {filteredProducts.length === 0 && (
-              <div className="panel">No jewelry products found for your search or filters.</div>
+              <div className="panel">
+                No jewelry products found for your search or filters.
+              </div>
             )}
           </div>
         </div>
@@ -305,11 +332,17 @@ function CustomerStorefront({
         <div className="cart-panel">
           <label>
             Cart Summary
-            <input value={`${cartItems.length} items selected`} disabled readOnly />
+            <input
+              value={`${cartItems.length} items selected`}
+              disabled
+              readOnly
+            />
           </label>
 
           {cartItems.length === 0 ? (
-            <p className="muted-text">Your cart is empty. Add products from the Shop tab.</p>
+            <p className="muted-text">
+              Your cart is empty. Add products from the Shop tab.
+            </p>
           ) : (
             <div className="cart-grid">
               {cartItems.map((item) => (
@@ -318,16 +351,24 @@ function CustomerStorefront({
                   key={item.id}
                   onClick={() => setSelectedProduct(item)}
                 >
-                  <img className="cart-item-image" src={item.image} alt={item.name} />
+                  <img
+                    className="cart-item-image"
+                    src={item.image}
+                    alt={item.name}
+                  />
                   <div>
                     <h3>{item.name}</h3>
                     <p className="muted-text">Product ID: {item.id}</p>
                     <p className="muted-text">{item.description}</p>
                     <p>
-                      Rs. {Number(item.price).toLocaleString("en-IN")} x {item.quantity}
+                      Rs. {Number(item.price).toLocaleString("en-IN")} x{" "}
+                      {item.quantity}
                     </p>
                     <p className="cart-line-total">
-                      Rs. {Number(item.price * item.quantity).toLocaleString("en-IN")}
+                      Rs.{" "}
+                      {Number(item.price * item.quantity).toLocaleString(
+                        "en-IN",
+                      )}
                     </p>
                   </div>
                   <div className="cart-actions">
@@ -335,7 +376,10 @@ function CustomerStorefront({
                       type="button"
                       onClick={(event) => {
                         event.stopPropagation();
-                        onUpdateCartQty(item.id, Math.max(item.quantity - 1, 0));
+                        onUpdateCartQty(
+                          item.id,
+                          Math.max(item.quantity - 1, 0),
+                        );
                       }}
                     >
                       -1
@@ -366,7 +410,9 @@ function CustomerStorefront({
           )}
 
           <div className="checkout-box">
-            <p className="cart-total">Total: Rs. {Number(cartTotal).toLocaleString("en-IN")}</p>
+            <p className="cart-total">
+              Total: Rs. {Number(cartTotal).toLocaleString("en-IN")}
+            </p>
             <button
               type="button"
               onClick={() => onPlaceOrder(cartItems, cartTotal)}
@@ -398,25 +444,38 @@ function CustomerStorefront({
 
                   return (
                     <>
-                <div>
-                  <p className="history-id">Order ID: {order.id}</p>
-                  <p className="muted-text">{new Date(order.created_at).toLocaleString()}</p>
-                </div>
-                <div>
-                  <p className="muted-text">Items</p>
-                  <p>{order.items.length}</p>
-                  <p className="muted-text">Product IDs: {productIds.length ? productIds.join(", ") : "N/A"}</p>
-                </div>
-                <div>
-                  <p className="muted-text">Total</p>
-                  <p>Rs. {Number(order.total_price).toLocaleString("en-IN")}</p>
-                </div>
-                <div>
-                  <span className={`status status-${order.status}`}>{order.status}</span>
-                </div>
-                <button type="button" onClick={() => handleOpenInvoice(order.id)}>
-                  View Details
-                </button>
+                      <div>
+                        <p className="history-id">Order ID: {order.id}</p>
+                        <p className="muted-text">
+                          {new Date(order.created_at).toLocaleString()}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="muted-text">Items</p>
+                        <p>{order.items.length}</p>
+                        <p className="muted-text">
+                          Product IDs:{" "}
+                          {productIds.length ? productIds.join(", ") : "N/A"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="muted-text">Total</p>
+                        <p>
+                          Rs.{" "}
+                          {Number(order.total_price).toLocaleString("en-IN")}
+                        </p>
+                      </div>
+                      <div>
+                        <span className={`status status-${order.status}`}>
+                          {order.status}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleOpenInvoice(order.id)}
+                      >
+                        View Details
+                      </button>
                     </>
                   );
                 })()}
@@ -429,11 +488,17 @@ function CustomerStorefront({
       {view === "invoice" && selectedInvoice && (
         <section className="invoice-shell">
           <div className="invoice-head">
-            <button type="button" className="secondary" onClick={() => setView("history")}>
+            <button
+              type="button"
+              className="secondary"
+              onClick={() => setView("history")}
+            >
               Back to Order History
             </button>
             <h2>INVOICE</h2>
-            <span className={`status status-${selectedInvoice.status}`}>{selectedInvoice.status}</span>
+            <span className={`status status-${selectedInvoice.status}`}>
+              {selectedInvoice.status}
+            </span>
           </div>
 
           <div className="invoice-meta-grid">
@@ -451,7 +516,10 @@ function CustomerStorefront({
             </div>
             <div className="invoice-card">
               <p className="muted-text">Total Amount</p>
-              <p>Rs. {Number(selectedInvoice.total_price).toLocaleString("en-IN")}</p>
+              <p>
+                Rs.{" "}
+                {Number(selectedInvoice.total_price).toLocaleString("en-IN")}
+              </p>
             </div>
           </div>
 
@@ -476,7 +544,11 @@ function CustomerStorefront({
           </div>
 
           <div className="invoice-foot">
-            <button type="button" className="secondary" onClick={onCloseInvoice}>
+            <button
+              type="button"
+              className="secondary"
+              onClick={onCloseInvoice}
+            >
               Close Invoice
             </button>
           </div>
@@ -484,7 +556,9 @@ function CustomerStorefront({
       )}
 
       {view === "invoice" && !selectedInvoice && (
-        <div className="panel">No invoice selected. Open one from Order History.</div>
+        <div className="panel">
+          No invoice selected. Open one from Order History.
+        </div>
       )}
     </section>
   );

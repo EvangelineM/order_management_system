@@ -422,7 +422,8 @@ function Home() {
               type="button"
               className="undo-toast-btn"
               onClick={async () => {
-                const pending = pendingDeletedProductsRef.current.get(productId);
+                const pending =
+                  pendingDeletedProductsRef.current.get(productId);
                 if (!pending) {
                   return;
                 }
@@ -431,12 +432,16 @@ function Home() {
                 pendingDeletedProductsRef.current.delete(productId);
 
                 try {
-                  const response = await updateProduct(productId, { active: true });
+                  const response = await updateProduct(productId, {
+                    active: true,
+                  });
                   setProducts((prev) => [response.data, ...prev]);
                   toast.success(`${label} restored.`);
                   closeToast?.();
                 } catch (err) {
-                  setError(err.response?.data?.detail || "Failed to restore product.");
+                  setError(
+                    err.response?.data?.detail || "Failed to restore product.",
+                  );
                 }
               }}
             >
@@ -458,11 +463,19 @@ function Home() {
     setError("");
     const existing = products.find((product) => product.id === productId);
     const label = existing?.name || "Product";
-    const hasStockChange = Object.prototype.hasOwnProperty.call(changes, "stock");
-    const hasVisibilityChange = Object.prototype.hasOwnProperty.call(changes, "active");
+    const hasStockChange = Object.prototype.hasOwnProperty.call(
+      changes,
+      "stock",
+    );
+    const hasVisibilityChange = Object.prototype.hasOwnProperty.call(
+      changes,
+      "active",
+    );
 
     const previousStock = Number(existing?.stock ?? 0);
-    const nextStock = hasStockChange ? Number(changes.stock ?? previousStock) : previousStock;
+    const nextStock = hasStockChange
+      ? Number(changes.stock ?? previousStock)
+      : previousStock;
 
     try {
       const response = await updateProduct(productId, changes);
@@ -485,7 +498,11 @@ function Home() {
       }
 
       if (hasVisibilityChange) {
-        toast.success(changes.active ? `${label} is now visible.` : `${label} is now hidden.`);
+        toast.success(
+          changes.active
+            ? `${label} is now visible.`
+            : `${label} is now hidden.`,
+        );
         return;
       }
 
@@ -643,7 +660,14 @@ function Home() {
     <main className="app-shell">
       <section className="dashboard-nav panel">
         <div className="dashboard-brand"></div>
-        <div style={{ position: "relative", flex: 1, display: "flex", alignItems: "center" }}>
+        <div
+          style={{
+            position: "relative",
+            flex: 1,
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
           <input
             className="dashboard-search"
             value={role === "admin" ? searchInput : productSearch}
@@ -666,16 +690,25 @@ function Home() {
             <button
               type="button"
               onClick={() => {
-                console.log("Dashboard voice button clicked, isListening:", isVoiceListening);
+                console.log(
+                  "Dashboard voice button clicked, isListening:",
+                  isVoiceListening,
+                );
                 if (isVoiceListening) {
                   console.log("Stopping voice recording...");
                   stopVoiceRecording();
                 } else {
                   console.log("Starting voice recording for search...");
                   startVoiceRecording((finalTranscript) => {
-                    console.log("Dashboard voice callback received:", finalTranscript);
+                    console.log(
+                      "Dashboard voice callback received:",
+                      finalTranscript,
+                    );
                     if (finalTranscript) {
-                      console.log("Updating search field with:", finalTranscript);
+                      console.log(
+                        "Updating search field with:",
+                        finalTranscript,
+                      );
                       if (role === "admin") {
                         setSearchInput(finalTranscript);
                       } else {
@@ -705,7 +738,7 @@ function Home() {
         </div>
         <div className="dashboard-profile">
           <span>{session.name}</span>
-      </div>
+        </div>
       </section>
 
       <section className="hero">
@@ -861,7 +894,6 @@ function Home() {
           )}
         </>
       )}
-
     </main>
   );
 }

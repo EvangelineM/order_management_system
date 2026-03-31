@@ -18,5 +18,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       draggable
       theme="colored"
     />
-  </React.StrictMode>
+  </React.StrictMode>,
 );
