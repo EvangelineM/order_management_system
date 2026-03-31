@@ -164,6 +164,31 @@ function Home() {
     [products],
   );
 
+  const filteredAdminProducts = useMemo(() => {
+    const query = String(searchInput || "").trim().toLowerCase();
+    if (!query) {
+      return products;
+    }
+
+    return products.filter((product) => {
+      const haystack = [
+        product.id,
+        product.name,
+        product.category,
+        product.description,
+        product.metal,
+        product.gemstone,
+        product.material,
+        product.color,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return haystack.includes(query);
+    });
+  }, [products, searchInput]);
+
   const loadProducts = async () => {
     setLoadingProducts(true);
     try {
@@ -678,7 +703,9 @@ function Home() {
             }
             placeholder={
               role === "admin"
-                ? "Search by order id, customer, item, or status"
+                ? adminView === "products"
+                  ? "Search products by id, name, category, or description"
+                  : "Search by order id, customer, item, or status"
                 : "Search jewelry by name, category, or description"
             }
             style={{
@@ -732,7 +759,46 @@ function Home() {
               }}
               title="Click to use voice search"
             >
-              🎤 {isVoiceListening ? "Listening..." : ""}
+              {isVoiceListening ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  <path d="M12 19v3" />
+                  <path d="M15 9.34V5a3 3 0 0 0-5.68-1.33" />
+                  <path d="M16.95 16.95A7 7 0 0 1 5 12v-2" />
+                  <path d="M18.89 13.23A7 7 0 0 0 19 12v-2" />
+                  <path d="m2 2 20 20" />
+                  <path d="M9 9v3a3 3 0 0 0 5.12 2.12" />
+                </svg>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  <path d="M12 19v3" />
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                  <rect x="9" y="2" width="6" height="13" rx="3" />
+                </svg>
+              )}
             </button>
           )}
         </div>
@@ -802,7 +868,7 @@ function Home() {
 
           {adminView === "products" ? (
             <AdminProductManager
-              products={products}
+              products={filteredAdminProducts}
               onAddProduct={handleAddProduct}
               onRemoveProduct={handleRemoveProduct}
               onUpdateProduct={handleUpdateProduct}

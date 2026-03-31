@@ -174,10 +174,53 @@ function AdminProductManager({
                 fontWeight: "bold",
                 whiteSpace: "nowrap",
                 flex: "0 0 auto",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
               }}
               title={isVoiceListening ? "Stop listening" : "Click to speak"}
             >
-              🎤 {isVoiceListening ? "Listening..." : "Voice Input"}
+              {isVoiceListening ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  <path d="M12 19v3" />
+                  <path d="M15 9.34V5a3 3 0 0 0-5.68-1.33" />
+                  <path d="M16.95 16.95A7 7 0 0 1 5 12v-2" />
+                  <path d="M18.89 13.23A7 7 0 0 0 19 12v-2" />
+                  <path d="m2 2 20 20" />
+                  <path d="M9 9v3a3 3 0 0 0 5.12 2.12" />
+                </svg>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  <path d="M12 19v3" />
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                  <rect x="9" y="2" width="6" height="13" rx="3" />
+                </svg>
+              )}
+              <span>{isVoiceListening ? "Listening..." : "Voice Input"}</span>
             </button>
             <div style={{ flex: 1 }}>
               {isVoiceListening && (
