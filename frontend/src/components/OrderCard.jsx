@@ -1,6 +1,25 @@
 const statuses = ["pending", "shipped", "delivered"];
 
+const parseOrderItem = (itemText) => {
+  const raw = String(itemText || "").trim();
+  const withId = raw.match(/^\[([^\]]+)\]\s*(.*)$/);
+
+  if (!withId) {
+    return {
+      name: raw,
+      productId: "N/A",
+    };
+  }
+
+  return {
+    productId: withId[1],
+    name: withId[2] || "-",
+  };
+};
+
 function OrderCard({ order, onStatusChange, onDelete }) {
+  const parsedItems = order.items.map(parseOrderItem);
+
   return (
     <article className="order-card">
       <header>
@@ -8,8 +27,19 @@ function OrderCard({ order, onStatusChange, onDelete }) {
         <span className={`status status-${order.status}`}>{order.status}</span>
       </header>
       <p>
-        <strong>Items:</strong> {order.items.join(", ")}
+        <strong>Order ID:</strong> {order.id}
       </p>
+      <p>
+        <strong>Items:</strong>
+      </p>
+      <div className="order-item-list">
+        {parsedItems.map((item, index) => (
+          <div className="order-item-row" key={`${order.id}-${index}`}>
+            <span className="order-item-name">{item.name}</span>
+            <span className="order-item-id">ID: {item.productId}</span>
+          </div>
+        ))}
+      </div>
       <p>
         <strong>Total:</strong> Rs. {Number(order.total_price).toLocaleString("en-IN")}
       </p>

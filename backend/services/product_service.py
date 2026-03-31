@@ -1,3 +1,6 @@
+import re
+from uuid import uuid4
+
 from sqlalchemy.orm import Session
 
 from models.product import ProductCreate
@@ -10,7 +13,7 @@ class ProductService:
 
     def create_product(self, product: ProductCreate) -> dict:
         """Create a new product."""
-        product_id = f"p-{product.name.lower().replace(' ', '-')}-{id(product)}"
+        product_id = self._generate_product_id(product.name)
         
         db_product = ProductRecord(
             id=product_id,
@@ -35,6 +38,15 @@ class ProductService:
         self.db.refresh(db_product)
         
         return self._map_to_dict(db_product)
+
+    def _generate_product_id(self, name: str) -> str:
+        base_slug = re.sub(r"[^a-z0-9]+", "-", name.strip().lower()).strip("-") or "product"
+
+        while True:
+            candidate = f"p-{base_slug[:40]}-{uuid4().hex[:8]}"
+            exists = self.db.query(ProductRecord.id).filter(ProductRecord.id == candidate).first()
+            if not exists:
+                return candidate
 
     def get_all_products(self) -> list[dict]:
         """Get all products."""

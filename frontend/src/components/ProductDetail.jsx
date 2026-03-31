@@ -1,18 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 
 function ProductDetail({ product, onClose, onAddToCart, cart = {}, showCartControls = true }) {
   if (!product) return null;
-
-  const [addSuccess, setAddSuccess] = useState("");
 
   const rating = Number(product.rating || 0);
   const reviews = Number(product.reviews || 0);
   const stock = Math.max(0, Number(product.stock || 0));
   const soldOut = stock <= 0;
-
-  useEffect(() => {
-    setAddSuccess("");
-  }, [product.id]);
 
   const stars = useMemo(() => {
     const safeRating = Math.max(0, Math.min(5, rating));
@@ -29,7 +23,6 @@ function ProductDetail({ product, onClose, onAddToCart, cart = {}, showCartContr
   const handleAdd = () => {
     if (soldOut) return;
     onAddToCart(product);
-    setAddSuccess(`${product.name} added to cart successfully.`);
   };
 
   return (
@@ -59,6 +52,7 @@ function ProductDetail({ product, onClose, onAddToCart, cart = {}, showCartContr
 
           <div className="detail-info-section">
             <p className="detail-category">{product.category || "Jewelry"}</p>
+            <p className="muted-text">Product ID: {product.id || "N/A"}</p>
             <h2 className="detail-name">{product.name}</h2>
 
             <div className="rating-section">
@@ -84,6 +78,10 @@ function ProductDetail({ product, onClose, onAddToCart, cart = {}, showCartContr
               <div className="detail-row">
                 <span className="detail-label">Material</span>
                 <span className="detail-value">{product.material || "N/A"}</span>
+              </div>
+              <div className="detail-row">
+                <span className="detail-label">Product ID</span>
+                <span className="detail-value">{product.id || "N/A"}</span>
               </div>
               <div className="detail-row">
                 <span className="detail-label">Metal</span>
@@ -119,8 +117,6 @@ function ProductDetail({ product, onClose, onAddToCart, cart = {}, showCartContr
                 </button>
 
                 {soldOut && <p className="out-of-stock-text">Out of stock</p>}
-
-                {addSuccess && <p className="success">{addSuccess}</p>}
               </div>
             )}
           </div>

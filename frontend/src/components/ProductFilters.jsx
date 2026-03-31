@@ -91,24 +91,21 @@ function ProductFilters({
     });
   };
 
-  const sliderMin = priceRange.min;
-  const sliderMax = Math.max(priceRange.max, priceRange.min + 1);
+  const sliderMin = Math.min(0, priceRange.min);
+  const sliderMax = Math.max(priceRange.max, sliderMin + 1);
 
-  const handleMinSliderChange = (e) => {
+  const selectedMaxPrice = Math.max(
+    sliderMin,
+    Math.min(Number(safeFilters.priceRange[1]), sliderMax),
+  );
+
+  const handleMaxPriceChange = (e) => {
     const value = Number(e.target.value);
-    const capped = Math.min(value, safeFilters.priceRange[1]);
+    const capped = Math.min(Math.max(value, sliderMin), sliderMax);
     onFilterChange({
       ...safeFilters,
-      priceRange: [capped, safeFilters.priceRange[1]],
-    });
-  };
-
-  const handleMaxSliderChange = (e) => {
-    const value = Number(e.target.value);
-    const floored = Math.max(value, safeFilters.priceRange[0]);
-    onFilterChange({
-      ...safeFilters,
-      priceRange: [safeFilters.priceRange[0], floored],
+      // Keep min fixed while allowing users to set an upper price cap.
+      priceRange: [sliderMin, capped],
     });
   };
 
@@ -116,8 +113,7 @@ function ProductFilters({
     safeFilters.metal.length > 0 ||
     safeFilters.gemstone.length > 0 ||
     safeFilters.minRating > 0 ||
-    safeFilters.priceRange[0] > priceRange.min ||
-    safeFilters.priceRange[1] < priceRange.max;
+    selectedMaxPrice < sliderMax;
 
   return (
     <div className="filters-panel">
@@ -206,26 +202,16 @@ function ProductFilters({
             min={sliderMin}
             max={sliderMax}
             step="100"
-            value={Number(safeFilters.priceRange[0])}
-            onChange={handleMinSliderChange}
-            className="price-slider"
-            aria-label="Minimum price"
-          />
-          <input
-            type="range"
-            min={sliderMin}
-            max={sliderMax}
-            step="100"
-            value={Number(safeFilters.priceRange[1])}
-            onChange={handleMaxSliderChange}
+            value={selectedMaxPrice}
+            onChange={handleMaxPriceChange}
             className="price-slider"
             aria-label="Maximum price"
           />
         </div>
 
         <p className="price-range-display">
-          ₹ {Number(safeFilters.priceRange[0]).toLocaleString("en-IN")} - ₹{" "}
-          {Number(safeFilters.priceRange[1]).toLocaleString("en-IN")}
+          ₹ {Number(sliderMin).toLocaleString("en-IN")} - ₹{" "}
+          {Number(selectedMaxPrice).toLocaleString("en-IN")}
         </p>
       </div>
     </div>

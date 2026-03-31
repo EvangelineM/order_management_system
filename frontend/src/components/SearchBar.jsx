@@ -1,18 +1,11 @@
 const statuses = ["all", "pending", "shipped", "delivered"];
 
-function SearchBar({ value, onChange, onClear, status, onStatusChange }) {
+function SearchBar({ onClear, status, onStatusChange }) {
 
   return (
     <div className="panel admin-form-shell order-search-shell">
       <div className="admin-form-section">
         <div className="order-search-controls">
-          <input
-            type="text"
-            className="order-search-input"
-            value={value}
-            onChange={(event) => onChange(event.target.value)}
-            placeholder="Search by order id, customer, item, or status"
-          />
           <select
             className="order-search-type"
             value={status}

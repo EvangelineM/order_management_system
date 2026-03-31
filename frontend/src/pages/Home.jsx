@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "react-toastify";
 
 import AdminProductManager from "../components/AdminProductManager";
 import CustomerStorefront from "../components/CustomerStorefront";
@@ -148,6 +149,7 @@ function Home() {
   const [loadingAuth, setLoadingAuth] = useState(false);
   const [error, setError] = useState("");
   const [loadingProducts, setLoadingProducts] = useState(true);
+  const pendingDeletedProductsRef = useRef(new Map());
 
   const {
     transcript: voiceTranscript,
@@ -303,6 +305,31 @@ function Home() {
     setPage(1);
   }, [search, statusFilter, pageSize]);
 
+  useEffect(() => {
+    if (!feedback) {
+      return;
+    }
+    toast.success(feedback);
+    setFeedback("");
+  }, [feedback]);
+
+  useEffect(() => {
+    if (!error) {
+      return;
+    }
+    toast.error(error);
+    setError("");
+  }, [error]);
+
+  useEffect(() => {
+    return () => {
+      pendingDeletedProductsRef.current.forEach((entry) => {
+        clearTimeout(entry.timeoutId);
+      });
+      pendingDeletedProductsRef.current.clear();
+    };
+  }, []);
+
   const handleCreate = async (payload) => {
     setLoadingCreate(true);
     setError("");
@@ -358,7 +385,7 @@ function Home() {
     try {
       const response = await createProduct(product);
       setProducts((prev) => [response.data, ...prev]);
-      setFeedback("Product added successfully!");
+      toast.success("Product added successfully!");
     } catch (err) {
       setError(err.response?.data?.detail || "Failed to add product.");
     }
@@ -366,10 +393,62 @@ function Home() {
 
   const handleRemoveProduct = async (productId) => {
     setError("");
+    const existing = products.find((product) => product.id === productId);
+    const label = existing?.name || "Product";
+
+    if (!existing) {
+      setError("Product not found.");
+      return;
+    }
+
     try {
       await deleteProduct(productId);
       setProducts((prev) => prev.filter((product) => product.id !== productId));
-      setFeedback("Product removed successfully!");
+
+      const timeoutId = setTimeout(() => {
+        pendingDeletedProductsRef.current.delete(productId);
+      }, 6000);
+
+      pendingDeletedProductsRef.current.set(productId, {
+        product: existing,
+        timeoutId,
+      });
+
+      toast.error(
+        ({ closeToast }) => (
+          <div className="undo-toast-content">
+            <span>{label} removed.</span>
+            <button
+              type="button"
+              className="undo-toast-btn"
+              onClick={async () => {
+                const pending = pendingDeletedProductsRef.current.get(productId);
+                if (!pending) {
+                  return;
+                }
+
+                clearTimeout(pending.timeoutId);
+                pendingDeletedProductsRef.current.delete(productId);
+
+                try {
+                  const response = await updateProduct(productId, { active: true });
+                  setProducts((prev) => [response.data, ...prev]);
+                  toast.success(`${label} restored.`);
+                  closeToast?.();
+                } catch (err) {
+                  setError(err.response?.data?.detail || "Failed to restore product.");
+                }
+              }}
+            >
+              Undo
+            </button>
+          </div>
+        ),
+        {
+          autoClose: 6000,
+          closeOnClick: false,
+        },
+      );
     } catch (err) {
       setError(err.response?.data?.detail || "Failed to remove product.");
     }
@@ -377,6 +456,14 @@ function Home() {
 
   const handleUpdateProduct = async (productId, changes) => {
     setError("");
+    const existing = products.find((product) => product.id === productId);
+    const label = existing?.name || "Product";
+    const hasStockChange = Object.prototype.hasOwnProperty.call(changes, "stock");
+    const hasVisibilityChange = Object.prototype.hasOwnProperty.call(changes, "active");
+
+    const previousStock = Number(existing?.stock ?? 0);
+    const nextStock = hasStockChange ? Number(changes.stock ?? previousStock) : previousStock;
+
     try {
       const response = await updateProduct(productId, changes);
       setProducts((prev) =>
@@ -384,7 +471,25 @@ function Home() {
           product.id === productId ? response.data : product,
         ),
       );
-      setFeedback("Product updated successfully!");
+
+      if (hasStockChange) {
+        const delta = nextStock - previousStock;
+        if (delta > 0) {
+          toast.success(`Added ${delta} stock to ${label}.`);
+        } else if (delta < 0) {
+          toast.error(`Removed ${Math.abs(delta)} stock from ${label}.`);
+        } else {
+          toast.info(`Stock unchanged for ${label}.`);
+        }
+        return;
+      }
+
+      if (hasVisibilityChange) {
+        toast.success(changes.active ? `${label} is now visible.` : `${label} is now hidden.`);
+        return;
+      }
+
+      toast.success(`${label} updated successfully.`);
     } catch (err) {
       setError(err.response?.data?.detail || "Failed to update product.");
     }
@@ -447,7 +552,7 @@ function Home() {
       items: cartLines.flatMap((item) =>
         Array.from(
           { length: item.quantity },
-          () => `${item.name} (Rs. ${item.price})`,
+          () => `[${item.id}] ${item.name} (Rs. ${item.price})`,
         ),
       ),
       total_price: Number(cartTotal.toFixed(2)),
@@ -632,8 +737,6 @@ function Home() {
           products={activeProducts}
           productSearch={productSearch}
           cart={cart}
-          feedback={feedback}
-          error={error}
           placingOrder={loadingCreate}
           onAddToCart={handleAddToCart}
           onUpdateCartQty={handleUpdateCartQty}
@@ -675,8 +778,6 @@ function Home() {
             <section className="admin-order-layout">
               <div className="order-tools">
                 <SearchBar
-                  value={searchInput}
-                  onChange={setSearchInput}
                   onClear={handleClearSearch}
                   status={statusFilter}
                   onStatusChange={setStatusFilter}
@@ -761,7 +862,6 @@ function Home() {
         </>
       )}
 
-      {role === "admin" && error && <div className="panel error">{error}</div>}
     </main>
   );
 }

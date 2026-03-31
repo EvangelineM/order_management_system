@@ -135,6 +135,13 @@ body {
   background: transparent;
   color: var(--text);
   border-radius: 999px;
+  min-height: 40px;
+  white-space: nowrap;
+}
+
+.role-switch button:hover:not(:disabled) {
+  background: #274f7c;
+  color: #ffffff;
 }
 
 .role-switch button.active {
@@ -474,6 +481,11 @@ button.secondary {
   color: #000000;
 }
 
+button.secondary:hover:not(:disabled) {
+  background: #274f7c;
+  color: #ffffff;
+}
+
 button:hover {
   transform: translateY(-1px);
   background: var(--btn-primary-hover);
@@ -533,6 +545,34 @@ button:disabled {
   margin: 0 0 10px;
 }
 
+.order-item-list {
+  display: grid;
+  gap: 6px;
+  margin: -4px 0 10px;
+}
+
+.order-item-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+  padding: 6px 8px;
+  background: #ffffff;
+}
+
+.order-item-name {
+  min-width: 0;
+}
+
+.order-item-id {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .status {
   font-size: 0.78rem;
   padding: 4px 8px;
@@ -571,22 +611,60 @@ button:disabled {
 .category-chips {
   grid-column: 1 / -1;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  align-items: center;
   gap: 8px;
+  width: 100%;
 }
 
 .chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  height: 44px;
+  min-height: 44px;
+  max-height: 44px;
+  box-sizing: border-box;
   background: #ffffff;
   color: var(--muted);
   border: 1px solid var(--line);
   border-radius: 999px;
-  padding: 8px 14px;
+  padding: 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.chip:hover {
+  transform: none;
+  background: #e9edf8;
+  color: #1f2a44;
+  border-color: #c9d2ea;
 }
 
 .chip-active {
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  height: 44px;
+  min-height: 44px;
+  max-height: 44px;
   background: var(--accent-soft);
   color: #000000;
-  border-color: var(--accent-soft);
+  border-color: var(--line);
+}
+
+.chip-active:hover {
+  transform: none;
+  background: var(--accent);
+  color: #000000;
+  border-color: var(--line);
 }
 
 .product-card {
@@ -896,6 +974,11 @@ button:disabled {
   color: var(--accent);
 }
 
+.admin-section-switch button:hover:not(:disabled) {
+  background: #274f7c;
+  color: #ffffff;
+}
+
 .admin-section-switch button.active {
   background: var(--accent);
   color: #000000;
@@ -937,16 +1020,54 @@ button:disabled {
 
   .admin-side-rail {
     width: 100%;
-    grid-template-columns: auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "visibility remove"
+      "stock stock";
+    align-items: stretch;
   }
 
   .admin-visibility-btn {
     justify-self: stretch;
+    grid-area: visibility;
   }
 
   .admin-stock-stack {
+    grid-area: stock;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .admin-remove-btn {
+    grid-area: remove;
+  }
+}
+
+.undo-toast-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.undo-toast-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border-radius: 8px;
+  min-width: 62px;
+  padding: 6px 12px;
+  min-height: 30px;
+  line-height: 1;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.undo-toast-btn:hover {
+  transform: none;
+  background: rgba(255, 255, 255, 0.25);
 }
 
 .order-tools {
@@ -1198,7 +1319,7 @@ button:disabled {
 
 .invoice-row {
   display: grid;
-  grid-template-columns: 0.5fr 2.5fr 0.7fr;
+  grid-template-columns: 0.5fr 1.2fr 2.2fr 0.7fr;
   padding: 12px;
   border-bottom: 1px solid var(--line-soft);
   align-items: center;
@@ -1336,6 +1457,11 @@ button:disabled {
   font-size: 0.85rem;
   color: var(--muted);
   margin: 0;
+}
+
+.Toastify__toast {
+  border-radius: 12px;
+  font-size: 0.92rem;
 }
 
 /* Product Card - Enhanced */
@@ -1611,16 +1737,95 @@ button:disabled {
 }
 
 @media (max-width: 768px) {
+  .app-shell {
+    padding: 14px 12px 28px;
+    gap: 12px;
+  }
+
+  .dashboard-nav {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .dashboard-profile {
+    justify-content: flex-start;
+  }
+
+  .hero {
+    padding: 18px;
+  }
+
+  .section-head-end {
+    justify-content: flex-start;
+  }
+
+  .role-switch {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    border-radius: 12px;
+  }
+
+  .role-switch button {
+    width: 100%;
+    border-radius: 10px;
+  }
+
   .shop-layout {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 
   .filters-panel {
     position: static;
+    padding: 14px;
   }
 
   .products-grid {
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+
+  .category-chips {
+    gap: 6px;
+  }
+
+  .chip,
+  .chip-active {
+    font-size: 0.84rem;
+  }
+
+  .qty-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .cart-item {
+    grid-template-columns: 1fr;
+  }
+
+  .cart-item-image {
+    width: 100%;
+    max-height: 220px;
+    height: auto;
+  }
+
+  .cart-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-content: stretch;
+  }
+
+  .history-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .invoice-head {
+    flex-wrap: wrap;
+  }
+
+  .invoice-row {
+    grid-template-columns: 0.6fr 1.2fr 2fr 0.8fr;
+    font-size: 0.9rem;
   }
 
   .detail-content {
@@ -1631,5 +1836,40 @@ button:disabled {
 
   .detail-image {
     max-width: 100%;
+  }
+}
+
+@media (max-width: 540px) {
+  .panel {
+    padding: 12px;
+  }
+
+  .products-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .product-card {
+    padding: 12px;
+  }
+
+  .dashboard-search,
+  input,
+  select,
+  button {
+    font-size: 0.95rem;
+  }
+
+  .invoice-meta-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pagination {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pagination-left,
+  .pagination-right {
+    width: 100%;
   }
 }

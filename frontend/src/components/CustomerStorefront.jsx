@@ -2,12 +2,30 @@ import { useEffect, useMemo, useState } from "react";
 import ProductDetail from "./ProductDetail";
 import ProductFilters from "./ProductFilters";
 
+const normalizeCategory = (category) => {
+  const value = String(category || "").trim();
+  if (value.toLowerCase() === "engagement rings") {
+    return "Rings";
+  }
+  return value;
+};
+
+const parseOrderItem = (itemText) => {
+  const raw = String(itemText || "").trim();
+  const match = raw.match(/^\[([^\]]+)\]\s*(.*)$/);
+  if (!match) {
+    return { productId: "N/A", description: raw };
+  }
+  return {
+    productId: match[1],
+    description: match[2] || "-",
+  };
+};
+
 function CustomerStorefront({
   products,
   productSearch,
   cart,
-  feedback,
-  error,
   placingOrder,
   onAddToCart,
   onUpdateCartQty,
@@ -19,6 +37,11 @@ function CustomerStorefront({
   selectedInvoice,
   onCloseInvoice,
 }) {
+  const maxCatalogPrice = useMemo(
+    () => Math.max(0, ...products.map((item) => Number(item.price || 0))),
+    [products],
+  );
+
   const [view, setView] = useState("shop");
   const [activeCategory, setActiveCategory] = useState("All");
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -26,12 +49,12 @@ function CustomerStorefront({
     metal: [],
     gemstone: [],
     minRating: 0,
-    priceRange: [0, 300000],
+    priceRange: [0, maxCatalogPrice],
   });
 
   const categoryChips = useMemo(() => {
     const categories = Array.from(
-      new Set(products.map((product) => String(product.category || "").trim()).filter(Boolean))
+      new Set(products.map((product) => normalizeCategory(product.category)).filter(Boolean))
     ).sort((a, b) => a.localeCompare(b));
 
     return ["All", ...categories];
@@ -42,6 +65,13 @@ function CustomerStorefront({
       setActiveCategory("All");
     }
   }, [activeCategory, categoryChips]);
+
+  useEffect(() => {
+    setFilters((prev) => ({
+      ...prev,
+      priceRange: [Math.min(Number(prev.priceRange?.[0] || 0), maxCatalogPrice), maxCatalogPrice],
+    }));
+  }, [maxCatalogPrice]);
 
   const cartItems = useMemo(
     () =>
@@ -59,7 +89,8 @@ function CustomerStorefront({
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
       const matchesCategory =
-        activeCategory === "All" || product.category.toLowerCase() === activeCategory.toLowerCase();
+        activeCategory === "All" ||
+        normalizeCategory(product.category).toLowerCase() === activeCategory.toLowerCase();
       if (!matchesCategory) return false;
 
       const query = String(productSearch || "").trim().toLowerCase();
@@ -98,17 +129,11 @@ function CustomerStorefront({
   }, [activeCategory, productSearch, products, filters]);
 
   const handleClearFilters = () => {
-    setFilters((prev) => ({
+    setFilters(() => ({
       metal: [],
       gemstone: [],
       minRating: 0,
-      priceRange: [
-        prev?.priceRange?.[0] ? 0 : 0,
-        Math.max(
-          300000,
-          ...products.map((item) => Number(item.price || 0))
-        ),
-      ],
+      priceRange: [0, maxCatalogPrice],
     }));
   };
 
@@ -211,6 +236,7 @@ function CustomerStorefront({
                   >
                     <img className="product-image" src={product.image} alt={product.name} />
                     <p className="product-category">{product.category}</p>
+                    <p className="muted-text">Product ID: {product.id}</p>
                     <h3>{product.name}</h3>
                     <p className="product-desc">{product.description}</p>
                     <div className="product-rating">
@@ -295,6 +321,7 @@ function CustomerStorefront({
                   <img className="cart-item-image" src={item.image} alt={item.name} />
                   <div>
                     <h3>{item.name}</h3>
+                    <p className="muted-text">Product ID: {item.id}</p>
                     <p className="muted-text">{item.description}</p>
                     <p>
                       Rs. {Number(item.price).toLocaleString("en-IN")} x {item.quantity}
@@ -360,13 +387,25 @@ function CustomerStorefront({
           ) : (
             customerOrders.map((order) => (
               <article className="history-row" key={order.id}>
+                {(() => {
+                  const productIds = Array.from(
+                    new Set(
+                      order.items
+                        .map((item) => parseOrderItem(item).productId)
+                        .filter((id) => id && id !== "N/A"),
+                    ),
+                  );
+
+                  return (
+                    <>
                 <div>
-                  <p className="history-id">Order #{order.id.slice(0, 8).toUpperCase()}</p>
+                  <p className="history-id">Order ID: {order.id}</p>
                   <p className="muted-text">{new Date(order.created_at).toLocaleString()}</p>
                 </div>
                 <div>
                   <p className="muted-text">Items</p>
                   <p>{order.items.length}</p>
+                  <p className="muted-text">Product IDs: {productIds.length ? productIds.join(", ") : "N/A"}</p>
                 </div>
                 <div>
                   <p className="muted-text">Total</p>
@@ -378,6 +417,9 @@ function CustomerStorefront({
                 <button type="button" onClick={() => handleOpenInvoice(order.id)}>
                   View Details
                 </button>
+                    </>
+                  );
+                })()}
               </article>
             ))
           )}
@@ -416,16 +458,21 @@ function CustomerStorefront({
           <div className="invoice-table">
             <div className="invoice-row invoice-row-head">
               <span>Item</span>
+              <span>Product ID</span>
               <span>Description</span>
               <span>Qty</span>
             </div>
-            {selectedInvoice.items.map((item, index) => (
-              <div className="invoice-row" key={`${item}-${index}`}>
-                <span>{index + 1}</span>
-                <span>{item}</span>
-                <span>1</span>
-              </div>
-            ))}
+            {selectedInvoice.items.map((item, index) => {
+              const parsed = parseOrderItem(item);
+              return (
+                <div className="invoice-row" key={`${item}-${index}`}>
+                  <span>{index + 1}</span>
+                  <span>{parsed.productId}</span>
+                  <span>{parsed.description}</span>
+                  <span>1</span>
+                </div>
+              );
+            })}
           </div>
 
           <div className="invoice-foot">
@@ -439,9 +486,6 @@ function CustomerStorefront({
       {view === "invoice" && !selectedInvoice && (
         <div className="panel">No invoice selected. Open one from Order History.</div>
       )}
-
-      {view === "shop" && feedback && <p className="success">{feedback}</p>}
-      {error && <p className="error">{error}</p>}
     </section>
   );
 }

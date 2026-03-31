@@ -85,7 +85,6 @@ function AdminProductManager({ products, onAddProduct, onRemoveProduct, onUpdate
     }
 
     const payload = {
-      id: `p-${Date.now()}`,
       name: form.name.trim(),
       category: form.category.trim(),
       description: form.description.trim() || "No description provided.",
@@ -364,6 +363,7 @@ function AdminProductManager({ products, onAddProduct, onRemoveProduct, onUpdate
               <img className="product-image product-image-small" src={product.image} alt={product.name} />
               <div className="admin-product-copy">
                 <p className="product-category">{product.category}</p>
+                <p className="muted-text">Product ID: {product.id}</p>
                 <h3>{product.name}</h3>
                 <p className="product-desc">{product.description}</p>
                 <div className="admin-product-meta">
