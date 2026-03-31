@@ -165,7 +165,9 @@ function Home() {
   );
 
   const filteredAdminProducts = useMemo(() => {
-    const query = String(searchInput || "").trim().toLowerCase();
+    const query = String(searchInput || "")
+      .trim()
+      .toLowerCase();
     if (!query) {
       return products;
     }
