@@ -39,8 +39,12 @@ body {
   font-size: 17px;
   color: var(--text);
   background:
-    radial-gradient(circle at 10% 12%, rgba(174, 186, 155, 0.18), transparent 34%),
-    radial-gradient(circle at 88% 9%, rgba(39, 45, 69, 0.09), transparent 28%),
+    radial-gradient(circle at 10% 12%,
+      rgba(174, 186, 155, 0.18),
+      transparent 34%),
+    radial-gradient(circle at 88% 9%,
+      rgba(39, 45, 69, 0.09),
+      transparent 28%),
     linear-gradient(155deg, var(--bg) 0%, var(--bg-soft) 60%, #dbdde4 100%),
     var(--bg);
   min-height: 100vh;
@@ -95,7 +99,9 @@ body {
 
 .hero {
   background:
-    radial-gradient(circle at 84% 28%, rgba(174, 186, 155, 0.25), transparent 37%),
+    radial-gradient(circle at 84% 28%,
+      rgba(174, 186, 155, 0.25),
+      transparent 37%),
     linear-gradient(124deg, #ffffff, #f7f7f8 52%, #e5e5eb);
   border: 1px solid var(--line);
   border-radius: 22px;
@@ -193,7 +199,9 @@ body {
   border: 1px solid var(--line);
   box-shadow: var(--shadow);
   background:
-    radial-gradient(circle at 10% 16%, rgba(255, 255, 255, 0.82), transparent 30%),
+    radial-gradient(circle at 10% 16%,
+      rgba(255, 255, 255, 0.82),
+      transparent 30%),
     linear-gradient(180deg, #ffffff 0%, #f7f7f8 100%);
 }
 
@@ -204,8 +212,12 @@ body {
   justify-content: space-between;
   padding: 10px;
   background:
-    radial-gradient(circle at 85% 8%, rgba(162, 176, 140, 0.26), transparent 26%),
-    radial-gradient(circle at 7% 28%, rgba(255, 255, 255, 0.85), transparent 22%),
+    radial-gradient(circle at 85% 8%,
+      rgba(162, 176, 140, 0.26),
+      transparent 26%),
+    radial-gradient(circle at 7% 28%,
+      rgba(255, 255, 255, 0.85),
+      transparent 22%),
     linear-gradient(165deg, #f7f7f8 0%, #ffffff 55%, #dbdde4 100%);
 }
 
@@ -244,6 +256,11 @@ body {
   border-radius: 999px;
   background: transparent;
   color: var(--muted);
+}
+
+.login-mode-switch button:hover:not(:disabled) {
+  background: #274f7c;
+  color: #ffffff;
 }
 
 .login-mode-switch button.active {
@@ -472,7 +489,10 @@ button {
   background: var(--btn-primary);
   color: #fff;
   cursor: pointer;
-  transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease,
+    background-color 0.2s ease;
   font-weight: 600;
 }
 
@@ -1576,7 +1596,7 @@ button:disabled {
 
 .detail-name {
   margin: 0;
-  font-family: 'Sora', sans-serif;
+  font-family: "Sora", sans-serif;
   font-size: 1.8rem;
   font-weight: 700;
 }
@@ -1633,7 +1653,7 @@ button:disabled {
 }
 
 .detail-price {
-  font-family: 'Sora', sans-serif;
+  font-family: "Sora", sans-serif;
   font-size: 1.6rem;
   font-weight: 700;
   margin: 0 0 8px;

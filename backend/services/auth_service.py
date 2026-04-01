@@ -27,9 +27,13 @@ class AuthService:
             password_hash=self._hash_password(payload.password),
             role="customer",
         )
-        self.db.add(user)
-        self.db.commit()
-        self.db.refresh(user)
+        try:
+            self.db.add(user)
+            self.db.commit()
+            self.db.refresh(user)
+        except Exception as e:
+            self.db.rollback()
+            raise HTTPException(status_code=500, detail=str(e))
         return UserProfile(name=user.name, email=user.email, role=user.role)
 
     def sign_in(self, payload: UserSignIn) -> UserProfile:

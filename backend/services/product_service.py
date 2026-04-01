@@ -1,6 +1,7 @@
 import re
 from uuid import uuid4
 
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from models.product import ProductCreate
@@ -13,6 +14,16 @@ class ProductService:
 
     def create_product(self, product: ProductCreate) -> dict:
         """Create a new product."""
+        existing = (
+            self.db.query(ProductRecord)
+            .filter(ProductRecord.name.ilike(product.name.strip()))
+            .filter(ProductRecord.category.ilike(product.category.strip()))
+            .filter(ProductRecord.price == product.price)
+            .first()
+        )
+        if existing:
+            raise HTTPException(status_code=409, detail="Product already exists")
+
         product_id = self._generate_product_id(product.name)
         
         db_product = ProductRecord(

@@ -5,7 +5,7 @@ from db import Base
 
 
 class UserRecord(Base):
-    __tablename__ = "users"
+    __tablename__ = "auth_users"
 
     email: Mapped[str] = mapped_column(String(255), primary_key=True)
     name: Mapped[str] = mapped_column(String(120), nullable=False)

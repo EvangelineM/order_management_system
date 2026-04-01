@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Generator
 
 from dotenv import load_dotenv
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 
@@ -45,27 +45,67 @@ def init_db() -> None:
 
     Base.metadata.create_all(bind=engine)
 
+    _ensure_auth_user_schema_compatibility()
+
     db = SessionLocal()
     try:
         AuthService(db).ensure_admin()
-        seed_key = "default_products_v1"
+        seed_key = "default_products_v2"
         existing_seed = db.query(SeedRecord).filter(SeedRecord.key == seed_key).first()
 
         if not existing_seed:
-            existing_product_ids = {
-                row[0] for row in db.query(ProductRecord.id).all()
-            }
+            products_exist = db.query(ProductRecord.id).first() is not None
 
-            products_to_insert = [
-                ProductRecord(**product)
-                for product in DEFAULT_PRODUCTS
-                if product["id"] not in existing_product_ids
-            ]
-
-            if products_to_insert:
-                db.add_all(products_to_insert)
+            if not products_exist:
+                products_to_insert = [ProductRecord(**product) for product in DEFAULT_PRODUCTS]
+                if products_to_insert:
+                    db.add_all(products_to_insert)
 
             db.add(SeedRecord(key=seed_key))
             db.commit()
     finally:
         db.close()
+
+
+def _ensure_auth_user_schema_compatibility() -> None:
+    """Apply lightweight, idempotent fixes for auth_users table schemas."""
+    inspector = inspect(engine)
+    table_names = set(inspector.get_table_names())
+    if "auth_users" not in table_names:
+        return
+
+    existing_columns = {column["name"] for column in inspector.get_columns("auth_users")}
+    statements: list[str] = []
+
+    if "name" not in existing_columns:
+        statements.append("ALTER TABLE auth_users ADD COLUMN name VARCHAR(120)")
+
+    if "password_hash" not in existing_columns:
+        statements.append("ALTER TABLE auth_users ADD COLUMN password_hash VARCHAR(128)")
+
+    if "role" not in existing_columns:
+        statements.append("ALTER TABLE auth_users ADD COLUMN role VARCHAR(32) DEFAULT 'customer'")
+
+    if not statements:
+        return
+
+    with engine.begin() as connection:
+        for statement in statements:
+            connection.execute(text(statement))
+
+        # Backfill defaults where possible for newly added nullable columns.
+        if "name" not in existing_columns:
+            connection.execute(
+                text("UPDATE auth_users SET name = COALESCE(name, 'Customer') WHERE name IS NULL")
+            )
+        if "password_hash" not in existing_columns:
+            connection.execute(
+                text(
+                    "UPDATE auth_users SET password_hash = COALESCE(password_hash, '') "
+                    "WHERE password_hash IS NULL"
+                )
+            )
+        if "role" not in existing_columns:
+            connection.execute(
+                text("UPDATE auth_users SET role = COALESCE(role, 'customer') WHERE role IS NULL")
+            )
