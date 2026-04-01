@@ -31,9 +31,12 @@ class AuthService:
             self.db.add(user)
             self.db.commit()
             self.db.refresh(user)
-        except Exception as e:
+        except Exception:
             self.db.rollback()
-            raise HTTPException(status_code=500, detail=str(e))
+            raise HTTPException(
+                status_code=500,
+                detail="Unable to create user account right now. Please try again.",
+            )
         return UserProfile(name=user.name, email=user.email, role=user.role)
 
     def sign_in(self, payload: UserSignIn) -> UserProfile:

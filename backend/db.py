@@ -45,7 +45,7 @@ def init_db() -> None:
 
     Base.metadata.create_all(bind=engine)
 
-    _ensure_auth_user_schema_compatibility()
+    _ensure_user_schema_compatibility()
 
     db = SessionLocal()
     try:
@@ -67,24 +67,27 @@ def init_db() -> None:
         db.close()
 
 
-def _ensure_auth_user_schema_compatibility() -> None:
-    """Apply lightweight, idempotent fixes for auth_users table schemas."""
+def _ensure_user_schema_compatibility() -> None:
+    """Apply lightweight, idempotent fixes for users table schemas."""
     inspector = inspect(engine)
     table_names = set(inspector.get_table_names())
-    if "auth_users" not in table_names:
+    if "users" not in table_names:
         return
 
-    existing_columns = {column["name"] for column in inspector.get_columns("auth_users")}
+    existing_columns = {column["name"] for column in inspector.get_columns("users")}
     statements: list[str] = []
 
     if "name" not in existing_columns:
-        statements.append("ALTER TABLE auth_users ADD COLUMN name VARCHAR(120)")
+        statements.append("ALTER TABLE users ADD COLUMN name VARCHAR(120)")
 
     if "password_hash" not in existing_columns:
-        statements.append("ALTER TABLE auth_users ADD COLUMN password_hash VARCHAR(128)")
+        statements.append("ALTER TABLE users ADD COLUMN password_hash VARCHAR(128)")
 
     if "role" not in existing_columns:
-        statements.append("ALTER TABLE auth_users ADD COLUMN role VARCHAR(32) DEFAULT 'customer'")
+        statements.append("ALTER TABLE users ADD COLUMN role VARCHAR(32) DEFAULT 'customer'")
+
+    if "created_at" not in existing_columns:
+        statements.append("ALTER TABLE users ADD COLUMN created_at TIMESTAMPTZ")
 
     if not statements:
         return
@@ -96,16 +99,26 @@ def _ensure_auth_user_schema_compatibility() -> None:
         # Backfill defaults where possible for newly added nullable columns.
         if "name" not in existing_columns:
             connection.execute(
-                text("UPDATE auth_users SET name = COALESCE(name, 'Customer') WHERE name IS NULL")
+                text("UPDATE users SET name = COALESCE(name, 'Customer') WHERE name IS NULL")
             )
         if "password_hash" not in existing_columns:
             connection.execute(
                 text(
-                    "UPDATE auth_users SET password_hash = COALESCE(password_hash, '') "
+                    "UPDATE users SET password_hash = COALESCE(password_hash, '') "
                     "WHERE password_hash IS NULL"
                 )
             )
         if "role" not in existing_columns:
             connection.execute(
-                text("UPDATE auth_users SET role = COALESCE(role, 'customer') WHERE role IS NULL")
+                text("UPDATE users SET role = COALESCE(role, 'customer') WHERE role IS NULL")
+            )
+        if "created_at" not in existing_columns:
+            connection.execute(
+                text("UPDATE users SET created_at = NOW() WHERE created_at IS NULL")
+            )
+            connection.execute(
+                text("ALTER TABLE users ALTER COLUMN created_at SET DEFAULT NOW()")
+            )
+            connection.execute(
+                text("ALTER TABLE users ALTER COLUMN created_at SET NOT NULL")
             )
