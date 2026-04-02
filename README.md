@@ -46,7 +46,7 @@ Full-stack order management app with FastAPI, React, and PostgreSQL.
 1. Clone repository.
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/EvangelineM/order_management_system/
 cd order_managment
 ```
 
