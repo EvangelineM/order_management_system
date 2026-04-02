@@ -1484,6 +1484,16 @@ button:disabled {
   font-size: 0.92rem;
 }
 
+.Toastify__toast--error {
+  background: var(--btn-danger);
+  color: #ffffff;
+}
+
+.Toastify__toast--error .Toastify__close-button {
+  color: #ffffff;
+  opacity: 0.9;
+}
+
 /* Product Card - Enhanced */
 .product-card {
   cursor: pointer;

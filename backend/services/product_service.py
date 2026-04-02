@@ -89,12 +89,12 @@ class ProductService:
         return self._map_to_dict(product)
 
     def delete_product(self, product_id: str) -> bool:
-        """Soft delete a product by setting active=False."""
+        """Permanently delete a product."""
         product = self.db.query(ProductRecord).filter(ProductRecord.id == product_id).first()
         if not product:
             return False
         
-        product.active = False
+        self.db.delete(product)
         self.db.commit()
         return True
 

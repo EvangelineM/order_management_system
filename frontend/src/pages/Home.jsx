@@ -194,16 +194,12 @@ function Home() {
   const loadProducts = async () => {
     setLoadingProducts(true);
     try {
-      const response = await getProducts(true);
+      const response = await getProducts(false);
       if (response.data && response.data.length > 0) {
         setProducts(response.data);
-      } else {
-        // Fallback to dummy products if no products from API
-        setProducts(normalizeProducts(dummyProducts));
       }
     } catch {
-      // On error, use dummy products
-      setProducts(normalizeProducts(dummyProducts));
+      // Keep the locally cached product list if the API is unavailable.
     } finally {
       setLoadingProducts(false);
     }
@@ -212,6 +208,20 @@ function Home() {
   useEffect(() => {
     loadProducts();
   }, []);
+
+  useEffect(() => {
+    if (loadingProducts) {
+      return;
+    }
+
+    localStorage.setItem(
+      PRODUCT_STORAGE_KEY,
+      JSON.stringify({
+        version: PRODUCT_CATALOG_VERSION,
+        items: products,
+      }),
+    );
+  }, [loadingProducts, products]);
 
   useEffect(() => {
     if (!session) {
@@ -429,47 +439,45 @@ function Home() {
     }
 
     try {
-      await deleteProduct(productId);
       setProducts((prev) => prev.filter((product) => product.id !== productId));
 
-      const timeoutId = setTimeout(() => {
-        pendingDeletedProductsRef.current.delete(productId);
-      }, 6000);
+      const timeoutId = setTimeout(async () => {
+        const pending = pendingDeletedProductsRef.current.get(productId);
+        if (!pending) {
+          return;
+        }
 
-      pendingDeletedProductsRef.current.set(productId, {
-        product: existing,
-        timeoutId,
-      });
+        try {
+          await deleteProduct(productId);
+          pendingDeletedProductsRef.current.delete(productId);
+          toast.dismiss(pending.toastId);
+          toast.error(`${label} removed permanently.`);
+        } catch (err) {
+          pendingDeletedProductsRef.current.delete(productId);
+          setProducts((prev) => [pending.product, ...prev]);
+          setError(err.response?.data?.detail || "Failed to remove product.");
+        }
+      }, 5000);
 
-      toast.error(
+      const toastId = toast.error(
         ({ closeToast }) => (
           <div className="undo-toast-content">
             <span>{label} removed.</span>
             <button
               type="button"
               className="undo-toast-btn"
-              onClick={async () => {
-                const pending =
-                  pendingDeletedProductsRef.current.get(productId);
+              onClick={() => {
+                const pending = pendingDeletedProductsRef.current.get(productId);
                 if (!pending) {
                   return;
                 }
 
                 clearTimeout(pending.timeoutId);
                 pendingDeletedProductsRef.current.delete(productId);
-
-                try {
-                  const response = await updateProduct(productId, {
-                    active: true,
-                  });
-                  setProducts((prev) => [response.data, ...prev]);
-                  toast.success(`${label} restored.`);
-                  closeToast?.();
-                } catch (err) {
-                  setError(
-                    err.response?.data?.detail || "Failed to restore product.",
-                  );
-                }
+                setProducts((prev) => [pending.product, ...prev]);
+                toast.dismiss(pending.toastId);
+                closeToast?.();
+                toast.success(`${label} restored.`);
               }}
             >
               Undo
@@ -477,10 +485,17 @@ function Home() {
           </div>
         ),
         {
-          autoClose: 6000,
+          autoClose: 5000,
           closeOnClick: false,
+          closeButton: false,
         },
       );
+
+      pendingDeletedProductsRef.current.set(productId, {
+        product: existing,
+        timeoutId,
+        toastId,
+      });
     } catch (err) {
       setError(err.response?.data?.detail || "Failed to remove product.");
     }

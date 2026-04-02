@@ -73,7 +73,7 @@ def delete_product(
     product_id: str,
     service: ProductService = Depends(get_product_service),
 ):
-    """Delete a product (soft delete)."""
+    """Delete a product."""
     success = service.delete_product(product_id)
     if not success:
         raise HTTPException(status_code=404, detail="Product not found")
